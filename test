@@ -1,0 +1,34 @@
+objQuoteDataMapped_Marsh.Policies.Add(
+    objPolicyBuildResult.PolicyMapped);
+
+lstPolicyPayloadArray.Add(objPolicyBuildResult.PolicyJson);
+
+bool bHasCarrierCode =
+    objPolicyBuildResult.PolicyJson.TryGetValue(
+        "@Carrier_Code", out object objCarrierCode)
+    && !string.IsNullOrWhiteSpace(
+        Convert.ToString(objCarrierCode));
+
+if (bHasCarrierCode)
+{
+    lstPolicyPayloadArray.Add(
+        objPolicyBuildResult.PolicyJson);
+}
+else
+{
+    objPolicyBuildResult.StatusReasons.Add(
+        "Excluded from API payload because no usable " +
+        "Carrier Code mapping was found.");
+
+    objPolicyBuildResult.IsSuccessful = false;
+
+    objPolicyBuildResult.PolicyMapped.MappingStatus =
+        "Faulted";
+
+    objPolicyBuildResult.PolicyMapped.MappingStatusReason =
+        string.Join(" ", objPolicyBuildResult.StatusReasons);
+}
+
+// Retain every policy for reporting and database records.
+objQuoteDataMapped_Marsh.Policies.Add(
+    objPolicyBuildResult.PolicyMapped);
